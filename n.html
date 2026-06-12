@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Birthday, Astha 🌸</title>
+    <meta name="description" content="A beautiful birthday celebration page for Astha — filled with memories, wishes, and love." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,300;1,6..96,300&family=Plus+Jakarta+Sans:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="n.css" />
+</head>
+
+<body class="loading">
+
+    <!-- scroll bar -->
+    <div id="scroll-bar"></div>
+
+    <!-- ══════ LOADER ══════ -->
+    <div id="loader">
+        <canvas id="loader-canvas"></canvas>
+        <p class="ldr-pre">✦ &nbsp; a celebration &nbsp; ✦</p>
+        <div class="ldr-name" aria-label="Astha">
+            <span class="ll">A</span><span class="ll">s</span><span class="ll">t</span><span class="ll">h</span><span
+                class="ll">a</span>
+        </div>
+        <p class="ldr-wish">Happy Birthday, Astha 🌸</p>
+        <div class="ldr-bar-wrap">
+            <div class="ldr-bar"></div>
+        </div>
+        <p class="ldr-pct" id="ldr-pct">0%</p>
+    </div>
+
+    <!-- ══════ MAIN CANVAS ══════ -->
+    <canvas id="petals"></canvas>
+
+    <!-- ══════ HERO ══════ -->
+    <section class="hero">
+        <div class="hero-glow" id="hero-glow"></div>
+
+        <!-- Left: Message -->
+        <div class="hero-left">
+            <span class="hero-tag">🌸 June 2026</span>
+            <p class="hero-greeting">Happy Birthday</p>
+            <h1 class="hero-name-full">Astha</h1>
+            <p class="hero-date">a day to celebrate you</p>
+            <p class="hero-wish">Here’s to the girl who turns <em>every ordinary moment</em> into something worth remembering. Today, the universe celebrates you. ✦</p>
+        </div>
+
+        <!-- Right: Full photo -->
+        <div class="hero-right">
+            <div class="hero-img-glow"></div>
+            <img src="imgs/img (2).jpg" alt="Astha" />
+        </div>
+
+        <div class="hero-bottom">
+            <p class="hero-scroll-txt">✦ &nbsp; scroll down &nbsp; ✦</p>
+            <div class="chevron"></div>
+        </div>
+    </section>
+
+    <!-- ══════ MARQUEE ══════ -->
+    <div class="marquee-wrap" aria-hidden="true">
+        <div class="mq-track" id="mq"></div>
+    </div>
+
+    <!-- ══════ GALLERY ══════ -->
+    <section class="gallery-section">
+        <div class="gallery-header">
+            <div class="eye-wrap" id="eye-wrap">
+                <span class="eye-inner">✦ &nbsp; captured moments &nbsp; ✦</span>
+            </div>
+            <p class="gallery-subtitle" id="gallery-subtitle">the memories we'll never forget</p>
+            <div class="gallery-header-line">
+                <span class="gallery-counter">16 memories</span>
+            </div>
+        </div>
+        <div class="masonry" id="gallery"></div>
+    </section>
+
+    <!-- ══════ LIGHTBOX ══════ -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-backdrop" id="lightbox-backdrop"></div>
+        <div class="lightbox-content">
+            <button class="lightbox-close" id="lightbox-close" aria-label="Close lightbox">✕</button>
+            <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous image">‹</button>
+            <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next image">›</button>
+            <img class="lightbox-img" id="lightbox-img" src="" alt="Gallery photo" />
+            <div class="lightbox-meta">
+                <span class="lightbox-num" id="lightbox-num"></span>
+                <span class="lightbox-dot"></span>
+                <span class="lightbox-hint">esc to close</span>
+            </div>
+            <div class="lightbox-indicators" id="lightbox-indicators"></div>
+        </div>
+    </div>
+
+    <!-- ══════ DIVIDER ══════ -->
+    <div class="divider" aria-hidden="true"><span>🌸</span></div>
+
+    <!-- ══════ MESSAGE ══════ -->
+    <section class="msg-section">
+        <h2 class="msg-title" id="msg-title">Here's to you.</h2>
+        <p class="msg-body" id="msg-body">
+            To the girl who's <span class="msg-em">deluluu</span> in the best possible way — the one who
+            chases <span class="msg-hi">10k</span> like it's already written in the stars,
+            who can stare down a whole mountain range and somehow still look that good doing it.
+            <br /><br />
+            You move through the world like you already know how the story ends.
+            And honestly? You probably do.
+            <br /><br />
+            May this birthday bring every wish you've ever dreamed of —
+            the followers, the sunsets, the flowers, the chaotic little moments worth keeping forever.
+            Stay exactly as <span class="msg-em">wonderfully, unexplainably, beautifully</span> yourself.
+            <br /><br />
+            <span class="msg-hi">Happy birthday, Astha. ✦</span>
+        </p>
+        <span class="msg-sig">with so much love ♡</span>
+    </section>
+
+    <!-- ══════ BIRTHDAY MOMENTS ══════ -->
+    <section class="bday-section" id="bday-section">
+        <div class="bday-header">
+            <p class="bday-eyebrow" id="bday-eyebrow">✦ &nbsp; celebrate every chapter &nbsp; ✦</p>
+            <h2 class="bday-title" id="bday-title">Birthday Moments</h2>
+            <p class="bday-subtitle" id="bday-subtitle">the ones that made us smile the widest</p>
+        </div>
+
+        <div class="bday-scatter" id="bday-scatter">
+            <div class="bday-polaroid" id="bday-pol-1">
+                <img src="imgs/img (2).jpg" alt="Birthday moment" loading="lazy" />
+                <span class="bday-polaroid-label">always glowing ✦</span>
+            </div>
+            <div class="bday-polaroid" id="bday-pol-2">
+                <img src="imgs/img (5).jpg" alt="Birthday moment" loading="lazy" />
+                <span class="bday-polaroid-label">that smile tho 🌸</span>
+            </div>
+            <div class="bday-polaroid" id="bday-pol-3">
+                <img src="imgs/img (8).jpg" alt="Birthday moment" loading="lazy" />
+                <span class="bday-polaroid-label">pure magic ✨</span>
+            </div>
+            <div class="bday-polaroid" id="bday-pol-4">
+                <img src="imgs/img (12).jpg" alt="Birthday moment" loading="lazy" />
+                <span class="bday-polaroid-label">main character energy</span>
+            </div>
+            <div class="bday-polaroid" id="bday-pol-5">
+                <img src="imgs/img (14).jpg" alt="Birthday moment" loading="lazy" />
+                <span class="bday-polaroid-label">forever this ♡</span>
+            </div>
+        </div>
+
+        <div class="bday-footer">
+            <p class="bday-wish-big">HBD</p>
+            <p class="bday-footer-sub">✦ &nbsp; to many more beautiful years &nbsp; ✦</p>
+        </div>
+    </section>
+
+    <script src="n.js"></script>
+</body>
+
+</html>
