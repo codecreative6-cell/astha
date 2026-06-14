@@ -16,6 +16,25 @@ setTimeout(() => {
   document.body.classList.remove('loading');
 }, 3200);
 
+/* Loader Burst of Hearts */
+(function() {
+  const ldrHearts = document.querySelector('.ldr-hearts');
+  if (ldrHearts) {
+    const heartChars = ['💕', '🌸', '✨', '💖', '🤍', '🎀'];
+    const isMobile = window.innerWidth < 768;
+    const count = isMobile ? 20 : 50;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+      const span = document.createElement('span');
+      span.className = 'ldr-heart';
+      span.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+      span.style.cssText = `left:${Math.random()*100}%;animation-delay:${(Math.random()*1.5).toFixed(2)}s;font-size:${(Math.random()*1.5+0.8).toFixed(1)}rem;animation-duration:${(Math.random()*3+3).toFixed(1)}s`;
+      frag.appendChild(span);
+    }
+    ldrHearts.appendChild(frag);
+  }
+})();
+
 /* Loader canvas petals */
 (function () {
   const lc = document.getElementById('loader-canvas');
@@ -52,13 +71,17 @@ window.addEventListener('scroll', () => {
 }, {passive:true});
 
 /* ──────────────────────────
-   CURSOR TRAIL
+   CURSOR TRAIL (desktop only)
 ────────────────────────── */
 (function() {
+  if ('ontouchstart' in window) return; // Skip on touch devices for perf
   const cc = document.getElementById('cursor-canvas');
   const cx = cc.getContext('2d');
-  cc.width = window.innerWidth; cc.height = window.innerHeight;
-  window.addEventListener('resize', () => { cc.width=window.innerWidth; cc.height=window.innerHeight; });
+  let cW, cH;
+  function resizeCursor() { cW = cc.width = window.innerWidth; cH = cc.height = window.innerHeight; }
+  resizeCursor();
+  let resizeTimer;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resizeCursor, 150); });
 
   const TRAIL_COLS = ['199,139,145','237,212,207','176,167,200','212,155,122','232,200,151'];
   const trails = [];
@@ -84,7 +107,7 @@ window.addEventListener('scroll', () => {
         cx.beginPath();
         cx.moveTo(0,-s*2.5); cx.quadraticCurveTo(s*.2,-s*.2,s*2.5,0);
         cx.quadraticCurveTo(s*.2,s*.2,0,s*2.5); cx.quadraticCurveTo(-s*.2,s*.2,-s*2.5,0);
-        cx.quadraticCurveTo(-s*.2,-s*.2,0,-s*2.5); cx.closePath(); cx.fill();
+        cx.quadraticCurveTo(-s*.2,-s*.22,0,-s*2.5); cx.closePath(); cx.fill();
       } else {
         cx.beginPath(); cx.arc(0,0,this.sz,0,Math.PI*2); cx.fill();
       }
@@ -94,15 +117,23 @@ window.addEventListener('scroll', () => {
   }
 
   let lastX=-9999, lastY=-9999;
+  let mouseQueued = false;
+  let pendingX = 0, pendingY = 0;
   document.addEventListener('mousemove', e => {
-    const dx = e.clientX-lastX, dy = e.clientY-lastY;
-    if(dx*dx+dy*dy < 30) return;
-    lastX=e.clientX; lastY=e.clientY;
-    for(let i=0;i<3;i++) trails.push(new Trail(e.clientX+((Math.random()-.5)*4), e.clientY+((Math.random()-.5)*4)));
+    pendingX = e.clientX; pendingY = e.clientY;
+    if (mouseQueued) return;
+    mouseQueued = true;
+    requestAnimationFrame(() => {
+      mouseQueued = false;
+      const dx = pendingX-lastX, dy = pendingY-lastY;
+      if(dx*dx+dy*dy < 30) return;
+      lastX=pendingX; lastY=pendingY;
+      for(let i=0;i<3;i++) trails.push(new Trail(pendingX+((Math.random()-.5)*4), pendingY+((Math.random()-.5)*4)));
+    });
   }, {passive:true});
 
   (function tloop(){
-    cx.clearRect(0,0,cc.width,cc.height);
+    cx.clearRect(0,0,cW,cH);
     for(let i=trails.length-1;i>=0;i--) {
       trails[i].update(); trails[i].draw();
       if(trails[i].done) trails.splice(i,1);
@@ -166,7 +197,10 @@ window.addEventListener('scroll', () => {
 const canvas = document.getElementById('petals');
 const ctx = canvas.getContext('2d');
 let W, H;
+const IS_MOBILE = window.innerWidth < 768 || 'ontouchstart' in window;
 const PCOLS = [[199,139,145,.42],[237,212,207,.34],[175,165,198,.28],[212,155,122,.26],[240,232,237,.2],[232,200,151,.22]];
+// Pre-cache fill strings to avoid repeated template literal allocations
+const PCOL_STRINGS = PCOLS.map(c => `rgb(${c[0]},${c[1]},${c[2]})`);
 
 class Petal {
   constructor(init) { this.reset(init); }
@@ -176,13 +210,14 @@ class Petal {
     this.vx=(Math.random()-.5)*.55; this.vy=Math.random()*.6+.18;
     this.rot=Math.random()*Math.PI*2; this.vr=(Math.random()-.5)*.022;
     this.sw=Math.random()*Math.PI*2; this.svp=.005+Math.random()*.012;
-    this.c=PCOLS[Math.floor(Math.random()*PCOLS.length)];
+    this.ci=Math.floor(Math.random()*PCOLS.length);
   }
   update() { this.sw+=this.svp; this.x+=this.vx+Math.sin(this.sw)*.48; this.y+=this.vy; this.rot+=this.vr; if(this.y>H+25)this.reset(); }
-  draw() { ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.rot); ctx.globalAlpha=this.c[3]; ctx.fillStyle=`rgb(${this.c[0]},${this.c[1]},${this.c[2]})`; ctx.beginPath(); ctx.ellipse(0,0,this.rx,this.ry,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+  draw() { ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.rot); ctx.globalAlpha=PCOLS[this.ci][3]; ctx.fillStyle=PCOL_STRINGS[this.ci]; ctx.beginPath(); ctx.ellipse(0,0,this.rx,this.ry,0,0,Math.PI*2); ctx.fill(); ctx.restore(); }
 }
 
 const SCOLS=['255,248,252','237,212,207','175,165,198','232,200,151'];
+const SCOL_STRINGS = SCOLS.map(c => `rgb(${c})`);
 class Sparkle {
   constructor() { this.reset(true); }
   reset(init=false) {
@@ -196,7 +231,7 @@ class Sparkle {
     const a=this.peak*Math.sin(t*Math.PI);
     if(a<.02)return;
     const s=this.sz;
-    ctx.save(); ctx.translate(this.x,this.y); ctx.globalAlpha=a; ctx.fillStyle=`rgb(${SCOLS[this.ci]})`;
+    ctx.save(); ctx.translate(this.x,this.y); ctx.globalAlpha=a; ctx.fillStyle=SCOL_STRINGS[this.ci];
     ctx.beginPath(); ctx.moveTo(0,-s*3); ctx.quadraticCurveTo(s*.22,-s*.22,s*3,0); ctx.quadraticCurveTo(s*.22,s*.22,0,s*3); ctx.quadraticCurveTo(-s*.22,s*.22,-s*3,0); ctx.quadraticCurveTo(-s*.22,-s*.22,0,-s*3); ctx.closePath(); ctx.fill(); ctx.restore();
   }
 }
@@ -210,41 +245,107 @@ class Burst {
     this.rx=Math.random()*6+2; this.ry=this.rx*(.35+Math.random()*.28);
     this.rot=Math.random()*Math.PI*2; this.vr=(Math.random()-.5)*.14;
     this.life=0; this.max=55+Math.floor(Math.random()*45);
-    this.c=PCOLS[Math.floor(Math.random()*PCOLS.length)];
+    this.ci=Math.floor(Math.random()*PCOLS.length);
   }
   update() { this.x+=this.vx; this.y+=this.vy; this.vy+=this.g; this.vx*=.97; this.rot+=this.vr; this.life++; }
   draw() {
-    const a=this.c[3]*(1-this.life/this.max);
+    const a=PCOLS[this.ci][3]*(1-this.life/this.max);
     if(a<.02)return;
     ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.rot); ctx.globalAlpha=a;
-    ctx.fillStyle=`rgb(${this.c[0]},${this.c[1]},${this.c[2]})`;
+    ctx.fillStyle=PCOL_STRINGS[this.ci];
     ctx.beginPath(); ctx.ellipse(0,0,this.rx,this.ry,0,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
   get done() { return this.life>=this.max; }
 }
 
-let petals=[], sparkles=[];
+/* Pre-render emoji hearts to offscreen canvases for GPU-friendly blitting */
+const F_HEARTS = ['💕', '🌸', '✨', '💖', '🤍', '🎀'];
+const heartCache = new Map();
+function getHeartBitmap(char, sz) {
+  const key = char + '|' + sz;
+  if (heartCache.has(key)) return heartCache.get(key);
+  const pad = 4;
+  const dim = sz + pad * 2;
+  const oc = document.createElement('canvas');
+  oc.width = dim; oc.height = dim;
+  const ox = oc.getContext('2d');
+  ox.font = `${sz}px sans-serif`;
+  ox.textAlign = 'center';
+  ox.textBaseline = 'middle';
+  ox.fillText(char, dim / 2, dim / 2);
+  heartCache.set(key, oc);
+  return oc;
+}
+
+class FloatingHeart {
+  constructor(init=false) { this.reset(init); }
+  reset(init=false) {
+    this.x = Math.random() * W;
+    this.y = init ? Math.random() * H : H + 50;
+    this.charIdx = Math.floor(Math.random() * F_HEARTS.length);
+    this.sz = Math.floor(Math.random() * 18 + 12);
+    this.bitmap = getHeartBitmap(F_HEARTS[this.charIdx], this.sz);
+    this.vy = -(Math.random() * 0.8 + 0.3);
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.sw = Math.random() * Math.PI * 2;
+    this.svp = 0.004 + Math.random() * 0.008;
+    this.alpha = Math.random() * 0.5 + 0.15;
+  }
+  update() {
+    this.sw += this.svp;
+    this.x += this.vx + Math.sin(this.sw) * 0.4;
+    this.y += this.vy;
+    if (this.y < -60) this.reset();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.drawImage(this.bitmap, this.x - this.bitmap.width/2, this.y - this.bitmap.height/2);
+    ctx.restore();
+  }
+}
+
+let petals=[], sparkles=[], floatingHearts=[];
+let resizeTimer;
 function resize() { W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
-function init() { resize(); petals=Array.from({length:42},()=>new Petal(true)); sparkles=Array.from({length:60},()=>new Sparkle()); }
+function init() { 
+  resize(); 
+  const numPetals = IS_MOBILE ? 18 : 42;
+  const numSparkles = IS_MOBILE ? 20 : 60;
+  const numHearts = IS_MOBILE ? 12 : 35;
+  petals=Array.from({length:numPetals},()=>new Petal(true)); 
+  sparkles=Array.from({length:numSparkles},()=>new Sparkle()); 
+  floatingHearts=Array.from({length:numHearts},()=>new FloatingHeart(true)); 
+}
 (function loop(){
   ctx.clearRect(0,0,W,H);
-  sparkles.forEach(s=>{s.update();s.draw();});
-  petals.forEach(p=>{p.update();p.draw();});
+  for(let i=0;i<sparkles.length;i++){sparkles[i].update();sparkles[i].draw();}
+  for(let i=0;i<petals.length;i++){petals[i].update();petals[i].draw();}
+  for(let i=0;i<floatingHearts.length;i++){floatingHearts[i].update();floatingHearts[i].draw();}
   for(let i=bursts.length-1;i>=0;i--){bursts[i].update();bursts[i].draw();if(bursts[i].done)bursts.splice(i,1);}
   requestAnimationFrame(loop);
 })();
-window.addEventListener('resize',resize);
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 150); });
 init();
 
 /* ──────────────────────────
-   HERO MOUSE PARALLAX
+   HERO MOUSE PARALLAX (desktop only)
 ────────────────────────── */
 const heroGlow = document.getElementById('hero-glow');
-document.addEventListener('mousemove', e => {
-  const mx=(e.clientX/window.innerWidth-.5)*35;
-  const my=(e.clientY/window.innerHeight-.5)*35;
-  heroGlow.style.transform=`translate(calc(-50% + ${mx}px), calc(-50% + ${my}px))`;
-}, {passive:true});
+if (!IS_MOBILE) {
+  let parallaxQueued = false;
+  let pmx = 0, pmy = 0;
+  document.addEventListener('mousemove', e => {
+    pmx = (e.clientX/window.innerWidth-.5)*35;
+    pmy = (e.clientY/window.innerHeight-.5)*35;
+    if (parallaxQueued) return;
+    parallaxQueued = true;
+    requestAnimationFrame(() => {
+      parallaxQueued = false;
+      heroGlow.style.transform=`translate(calc(-50% + ${pmx}px), calc(-50% + ${pmy}px))`;
+    });
+  }, {passive:true});
+}
 
 /* ──────────────────────────
    MARQUEE
@@ -386,7 +487,7 @@ const bdayPolaroids=document.querySelectorAll('.bday-polaroid');
 [bdayEyebrow,bdayTitle,bdaySubtitle,bdayHbdText].forEach(el=>el&&secIO.observe(el));
 bdayPolaroids.forEach(p=>revIO.observe(p));
 
-function makeBurst(cx,cy){ for(let i=0;i<80;i++)bursts.push(new Burst(cx,cy)); }
+function makeBurst(cx,cy){ const count = IS_MOBILE ? 30 : 80; for(let i=0;i<count;i++)bursts.push(new Burst(cx,cy)); }
 bdayPolaroids.forEach(p=>{ p.addEventListener('click',e=>makeBurst(e.clientX,e.clientY)); });
 
 /* ──────────────────────────
